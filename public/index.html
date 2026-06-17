@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IT GST Automation</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#home" aria-label="IT GST Automation home">
+      <span class="brand-mark">IT</span>
+      <span>GST Automation</span>
+    </a>
+    <nav class="nav-links" aria-label="Primary navigation">
+      <a href="#services">Services</a>
+      <a href="#forms">Start</a>
+      <a href="#admin">Admin</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="home" class="hero">
+      <img class="hero-image" src="/assets/finance-operations-hero.png" alt="Finance operations desk with reports and dashboard">
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <p class="eyebrow">Tax, GST, accounting, finance automation</p>
+        <h1>Run client filing, compliance, and MIS work from one operating desk.</h1>
+        <p class="hero-copy">Capture simple call requests, collect structured client data, track due dates, and manage finance automation projects without losing work inside chats.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#callback-form">Request a Call</a>
+          <a class="button secondary" href="#admin">Open Admin</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="services" class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Service lines</p>
+        <h2>Built for assisted clients and business automation work.</h2>
+      </div>
+      <div class="service-grid">
+        <article class="service-card">
+          <span class="service-icon">01</span>
+          <h3>Income Tax Filing</h3>
+          <p>ITR support for salaried persons, freelancers, business owners, capital gains, and notice follow-ups.</p>
+        </article>
+        <article class="service-card">
+          <span class="service-icon">02</span>
+          <h3>GST Compliance</h3>
+          <p>GST registration, GSTR-1, GSTR-3B, quarterly filings, reconciliation, and due date tracking.</p>
+        </article>
+        <article class="service-card">
+          <span class="service-icon">03</span>
+          <h3>Company Accounting</h3>
+          <p>Monthly bookkeeping, bank reconciliation, closing tasks, document follow-ups, and management reporting.</p>
+        </article>
+        <article class="service-card">
+          <span class="service-icon">04</span>
+          <h3>MIS Automation</h3>
+          <p>Automated sales, purchase, GST, cash flow, ageing, P&L, and custom reports in Excel, Sheets, Power BI, or dashboards.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="forms" class="section split-band">
+      <div class="section-heading">
+        <p class="eyebrow">Client entry</p>
+        <h2>Two ways to start: simple callback or structured enquiry.</h2>
+      </div>
+      <div class="form-grid">
+        <form id="callback-form" class="panel form-panel">
+          <h3>I need help. Call me.</h3>
+          <p class="panel-copy">For layman clients who prefer a phone call. The system creates a lead and staff call task.</p>
+          <label>Name <input name="name" required autocomplete="name"></label>
+          <label>Phone <input name="phone" required autocomplete="tel"></label>
+          <label>City <input name="city" autocomplete="address-level2"></label>
+          <label>Preferred language <input name="preferredLanguage" placeholder="Tamil, English, Hindi"></label>
+          <label>Preferred call time <input name="preferredCallTime" placeholder="Today evening, tomorrow morning"></label>
+          <label>Service interest
+            <select name="serviceInterest" required>
+              <option value="">Select service</option>
+              <option>Income Tax Filing</option>
+              <option>GST Filing</option>
+              <option>Company Accounting</option>
+              <option>Finance Automation / MIS</option>
+              <option>Not sure</option>
+            </select>
+          </label>
+          <button class="button primary" type="submit">Create Call Request</button>
+          <p class="form-status" data-status-for="callback-form"></p>
+        </form>
+
+        <form id="automation-form" class="panel form-panel">
+          <h3>Automate finance reports.</h3>
+          <p class="panel-copy">For companies needing MIS, reconciliation, dashboards, or custom reports.</p>
+          <label>Company name <input name="companyName" required></label>
+          <label>Contact name <input name="contactName"></label>
+          <label>Phone <input name="phone" autocomplete="tel"></label>
+          <label>Email <input name="email" type="email" autocomplete="email"></label>
+          <label>Project type
+            <select name="projectType" required>
+              <option value="">Select project</option>
+              <option>MIS Report Automation</option>
+              <option>Excel Automation</option>
+              <option>Google Sheets Automation</option>
+              <option>Power BI Dashboard</option>
+              <option>GST Reconciliation</option>
+              <option>Custom Dashboard</option>
+            </select>
+          </label>
+          <label>Desired output <textarea name="desiredOutput" required placeholder="Example: monthly sales, purchase, GST, and ageing report automatically from Excel exports"></textarea></label>
+          <label>Data sources <input name="dataSources" placeholder="Tally, Zoho, Excel, bank statement, GST portal"></label>
+          <button class="button primary" type="submit">Create Automation Enquiry</button>
+          <p class="form-status" data-status-for="automation-form"></p>
+        </form>
+      </div>
+    </section>
+
+    <section id="admin" class="section admin-section">
+      <div class="section-heading compact">
+        <p class="eyebrow">Admin workspace</p>
+        <h2>Operations dashboard</h2>
+      </div>
+
+      <div class="metric-grid" id="metrics"></div>
+
+      <div class="workspace-grid">
+        <section class="panel">
+          <div class="panel-header">
+            <h3>Recent Leads</h3>
+            <button class="text-button" data-refresh>Refresh</button>
+          </div>
+          <div id="leads-list" class="record-list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h3>Open Tasks</h3>
+            <button class="text-button" data-refresh>Refresh</button>
+          </div>
+          <div id="tasks-list" class="record-list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h3>Automation Projects</h3>
+            <button class="text-button" data-refresh>Refresh</button>
+          </div>
+          <div id="projects-list" class="record-list"></div>
+        </section>
+
+        <form id="filing-form" class="panel form-panel compact-form">
+          <h3>Add Filing Task</h3>
+          <label>Client name <input name="clientName" required></label>
+          <label>Return type <input name="returnType" required placeholder="GSTR-3B, ITR, TDS"></label>
+          <label>Due date <input name="dueDate" type="date" required></label>
+          <label>Notes <textarea name="notes"></textarea></label>
+          <button class="button primary" type="submit">Add Task</button>
+          <p class="form-status" data-status-for="filing-form"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>IT GST Automation MVP</span>
+    <span>Local-first client operations platform</span>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>
+

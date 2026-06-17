@@ -25,13 +25,15 @@ Deliverables:
 
 ## Phase 1 - App Foundation
 
+Status: In progress
+
 Deliverables:
 
-- Project scaffold
-- Basic frontend
-- Basic backend
-- Database setup
-- Environment configuration
+- Project scaffold: done
+- Basic frontend: done
+- Basic backend: done
+- Database setup: local JSON runtime store created
+- Environment configuration: minimal `PORT` support in `server.js`
 - Admin authentication
 
 Suggested stack:
@@ -43,15 +45,17 @@ Suggested stack:
 
 ## Phase 2 - Public Website and Lead Capture
 
+Status: Started
+
 Deliverables:
 
-- Home page
+- Home page: done
 - Services pages
-- Request a Call form
+- Request a Call form: done
 - Detailed onboarding form
-- Finance automation enquiry form
-- Lead storage in database
-- Admin notification placeholder
+- Finance automation enquiry form: done
+- Lead storage in database: done with local JSON runtime store
+- Admin notification placeholder: done as queued notification records
 
 ## Phase 3 - Admin CRM
 
@@ -137,4 +141,3 @@ Deliverables:
 ## Build Principle
 
 Start with workflow visibility and manual control. Then automate repeated work once the process is stable.
-

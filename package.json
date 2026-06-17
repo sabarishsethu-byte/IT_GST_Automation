@@ -1,0 +1,15 @@
+{
+  "name": "it-gst-automation",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-first MVP for IT, GST, accounting, finance automation, and MIS reporting service operations.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
+

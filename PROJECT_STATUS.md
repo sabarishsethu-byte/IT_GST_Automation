@@ -22,9 +22,20 @@ The platform should support:
 
 ## Current Stage
 
-Planning and project documentation started.
+Phase 1 app foundation started.
 
-No application code has been created yet.
+Created a local-first Node.js MVP with:
+
+- Static public website in `public/`
+- Node standard-library backend in `server.js`
+- Runtime JSON data store at `data/app.json`
+- Public assisted callback form
+- Public finance automation enquiry form
+- Admin dashboard section
+- Filing task creation form
+- Generated hero image at `public/assets/finance-operations-hero.png`
+
+`data/app.json` and uploaded files are ignored by git to avoid pushing future client data.
 
 ## Key Product Direction
 
@@ -87,9 +98,9 @@ These should be handled as project workflows, not only recurring tax tasks.
 
 ## Recommended Build Order
 
-1. Create project structure and planning docs.
-2. Choose stack and scaffold application.
-3. Build public website pages and lead forms.
+1. Create project structure and planning docs. Done.
+2. Choose stack and scaffold application. In progress with local-first Node.js MVP.
+3. Build public website pages and lead forms. In progress.
 4. Build admin login and dashboard.
 5. Add client records and client folder system.
 6. Add manual staff uploads.
@@ -102,12 +113,28 @@ These should be handled as project workflows, not only recurring tax tasks.
 
 ## Open Decisions
 
-- Final tech stack
+- Final production tech stack
 - Business name / brand name
 - Exact services and packages
 - Whether first MVP should be local-only or cloud-ready
 - Whether WhatsApp automation should start with manual templates or full WhatsApp Business API
 - Whether document storage should be local first or cloud object storage from day one
+
+## Local Development
+
+Run:
+
+```powershell
+npm start
+```
+
+Open:
+
+```text
+http://127.0.0.1:4173
+```
+
+Current MVP intentionally uses no external npm packages.
 
 ## Files To Read First When Resuming
 
@@ -116,4 +143,3 @@ These should be handled as project workflows, not only recurring tax tasks.
 3. `docs/MVP_ROADMAP.md`
 4. `docs/DATA_MODEL.md`
 5. `docs/AUTOMATION_PLAN.md`
-
