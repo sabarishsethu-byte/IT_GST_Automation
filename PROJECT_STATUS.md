@@ -37,6 +37,13 @@ Created a local-first Node.js MVP with:
 
 `data/app.json` and uploaded files are ignored by git to avoid pushing future client data.
 
+Latest frontend pass:
+
+- Reworked the website into a stronger marketing/service page.
+- Added a more engaging hero section with operational highlights.
+- Added proof strip, audience pathways, finance automation showcase, and improved conversion sections.
+- Kept existing lead, automation enquiry, admin dashboard, and filing task forms wired to the backend.
+
 ## Key Product Direction
 
 This should not be only a tax filing website. It should become a practical service operations platform for:

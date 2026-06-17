@@ -10,10 +10,14 @@
   <header class="site-header">
     <a class="brand" href="#home" aria-label="IT GST Automation home">
       <span class="brand-mark">IT</span>
-      <span>GST Automation</span>
+      <span>
+        <strong>GST Automation</strong>
+        <small>Tax, accounts and MIS desk</small>
+      </span>
     </a>
     <nav class="nav-links" aria-label="Primary navigation">
       <a href="#services">Services</a>
+      <a href="#automation">Automation</a>
       <a href="#forms">Start</a>
       <a href="#admin">Admin</a>
     </nav>
@@ -23,55 +27,162 @@
     <section id="home" class="hero">
       <img class="hero-image" src="/assets/finance-operations-hero.png" alt="Finance operations desk with reports and dashboard">
       <div class="hero-overlay"></div>
-      <div class="hero-content">
-        <p class="eyebrow">Tax, GST, accounting, finance automation</p>
-        <h1>Run client filing, compliance, and MIS work from one operating desk.</h1>
-        <p class="hero-copy">Capture simple call requests, collect structured client data, track due dates, and manage finance automation projects without losing work inside chats.</p>
-        <div class="hero-actions">
-          <a class="button primary" href="#callback-form">Request a Call</a>
-          <a class="button secondary" href="#admin">Open Admin</a>
+      <div class="hero-shell">
+        <div class="hero-content">
+          <p class="eyebrow">ITR, GST, accounting, company finance and MIS automation</p>
+          <h1>Compliance work that feels organized from the first call.</h1>
+          <p class="hero-copy">A client-first tax and finance operations platform for people who need simple help, and companies that need recurring reports without spreadsheet chaos.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="#callback-form">Get a Call Back</a>
+            <a class="button secondary" href="#automation">Explore MIS Automation</a>
+          </div>
         </div>
+
+        <aside class="hero-console" aria-label="Service highlights">
+          <div class="console-topline">
+            <span>Today&apos;s desk</span>
+            <strong>Live workflow</strong>
+          </div>
+          <div class="console-row urgent">
+            <span>GST filing</span>
+            <strong>Due soon</strong>
+          </div>
+          <div class="console-row">
+            <span>ITR client</span>
+            <strong>Docs pending</strong>
+          </div>
+          <div class="console-row">
+            <span>MIS project</span>
+            <strong>Discovery</strong>
+          </div>
+          <div class="console-strip">
+            <span>15-day reminders</span>
+            <span>Staff tasks</span>
+            <span>Client folders</span>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="proof-strip" aria-label="Platform strengths">
+      <div>
+        <strong>Assisted onboarding</strong>
+        <span>Clients can simply request a call</span>
+      </div>
+      <div>
+        <strong>Due date control</strong>
+        <span>GST, ITR and accounting tasks stay visible</span>
+      </div>
+      <div>
+        <strong>Business automation</strong>
+        <span>MIS and finance reports become repeatable</span>
       </div>
     </section>
 
     <section id="services" class="section">
-      <div class="section-heading">
+      <div class="section-heading wide-heading">
         <p class="eyebrow">Service lines</p>
-        <h2>Built for assisted clients and business automation work.</h2>
+        <h2>One place for tax filing, account handling, and custom finance automation.</h2>
+        <p>For individuals, GST businesses, and companies that want clearer records, timely filings, and finance reports that management can actually use.</p>
       </div>
+
       <div class="service-grid">
-        <article class="service-card">
-          <span class="service-icon">01</span>
+        <article class="service-card featured-service">
+          <span class="service-kicker">For individuals</span>
           <h3>Income Tax Filing</h3>
-          <p>ITR support for salaried persons, freelancers, business owners, capital gains, and notice follow-ups.</p>
+          <p>ITR filing support for salaried persons, freelancers, business owners, capital gains, deductions, and notice follow-ups.</p>
+          <ul>
+            <li>Simple call-based help</li>
+            <li>Document checklist</li>
+            <li>Return status tracking</li>
+          </ul>
         </article>
         <article class="service-card">
-          <span class="service-icon">02</span>
+          <span class="service-kicker">For GST clients</span>
           <h3>GST Compliance</h3>
-          <p>GST registration, GSTR-1, GSTR-3B, quarterly filings, reconciliation, and due date tracking.</p>
+          <p>GST registration, GSTR-1, GSTR-3B, quarterly filings, reconciliation, and recurring due date follow-up.</p>
         </article>
         <article class="service-card">
-          <span class="service-icon">03</span>
+          <span class="service-kicker">For businesses</span>
           <h3>Company Accounting</h3>
-          <p>Monthly bookkeeping, bank reconciliation, closing tasks, document follow-ups, and management reporting.</p>
+          <p>Monthly bookkeeping, bank reconciliation, closing work, document follow-up, and management-ready reporting.</p>
         </article>
         <article class="service-card">
-          <span class="service-icon">04</span>
-          <h3>MIS Automation</h3>
-          <p>Automated sales, purchase, GST, cash flow, ageing, P&L, and custom reports in Excel, Sheets, Power BI, or dashboards.</p>
+          <span class="service-kicker">For management</span>
+          <h3>MIS and Custom Reports</h3>
+          <p>Sales, purchase, GST, cash flow, ageing, branch-wise, department-wise, and P&amp;L reports automated from business data.</p>
         </article>
       </div>
     </section>
 
-    <section id="forms" class="section split-band">
+    <section class="section audience-band">
       <div class="section-heading">
-        <p class="eyebrow">Client entry</p>
-        <h2>Two ways to start: simple callback or structured enquiry.</h2>
+        <p class="eyebrow">Built for real clients</p>
+        <h2>Not every client wants a long form.</h2>
+      </div>
+      <div class="audience-grid">
+        <article>
+          <span class="audience-number">01</span>
+          <h3>Layman client</h3>
+          <p>They share name, phone, city, preferred call time, and service interest. Your team collects the rest through phone or WhatsApp.</p>
+        </article>
+        <article>
+          <span class="audience-number">02</span>
+          <h3>Self-service client</h3>
+          <p>They can submit structured details and documents, while the admin dashboard keeps follow-up tasks and filing status visible.</p>
+        </article>
+        <article>
+          <span class="audience-number">03</span>
+          <h3>Company finance team</h3>
+          <p>They request MIS, reconciliation, reporting, Excel, Sheets, Power BI, or custom dashboard automation as a project workflow.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="automation" class="section automation-section">
+      <div class="automation-copy">
+        <p class="eyebrow">Finance automation</p>
+        <h2>Turn monthly reporting from manual chasing into a repeatable system.</h2>
+        <p>Companies can send existing Excel files, Tally or Zoho exports, GST data, bank statements, and management report formats. The project tracker captures the current process, data source, desired output, frequency, and delivery stage.</p>
+        <div class="tag-cloud">
+          <span>GST reconciliation</span>
+          <span>Debtor ageing</span>
+          <span>Sales MIS</span>
+          <span>Cash flow</span>
+          <span>Power BI</span>
+          <span>Excel automation</span>
+        </div>
+      </div>
+      <div class="report-preview" aria-label="MIS report preview">
+        <div class="report-header">
+          <span>Monthly MIS</span>
+          <strong>Automated</strong>
+        </div>
+        <div class="bars">
+          <span style="--bar: 72%"></span>
+          <span style="--bar: 48%"></span>
+          <span style="--bar: 86%"></span>
+          <span style="--bar: 63%"></span>
+        </div>
+        <div class="report-metrics">
+          <div><strong>Sales</strong><span>Branch wise</span></div>
+          <div><strong>GST</strong><span>Reconciled</span></div>
+          <div><strong>Cash</strong><span>Forecast</span></div>
+          <div><strong>Ageing</strong><span>Follow-up</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="forms" class="section split-band">
+      <div class="section-heading wide-heading">
+        <p class="eyebrow">Start here</p>
+        <h2>Start with a simple request, then move into an organized service workflow.</h2>
       </div>
       <div class="form-grid">
-        <form id="callback-form" class="panel form-panel">
+        <form id="callback-form" class="panel form-panel highlighted-form">
+          <span class="form-label">Fastest start</span>
           <h3>I need help. Call me.</h3>
-          <p class="panel-copy">For layman clients who prefer a phone call. The system creates a lead and staff call task.</p>
+          <p class="panel-copy">Best for clients who do not know which details are required. Share basic contact details and the team can collect the rest by call.</p>
           <label>Name <input name="name" required autocomplete="name"></label>
           <label>Phone <input name="phone" required autocomplete="tel"></label>
           <label>City <input name="city" autocomplete="address-level2"></label>
@@ -92,8 +203,9 @@
         </form>
 
         <form id="automation-form" class="panel form-panel">
+          <span class="form-label">For companies</span>
           <h3>Automate finance reports.</h3>
-          <p class="panel-copy">For companies needing MIS, reconciliation, dashboards, or custom reports.</p>
+          <p class="panel-copy">For MIS, reconciliation, dashboards, Excel workflows, Power BI reports, or custom monthly reports.</p>
           <label>Company name <input name="companyName" required></label>
           <label>Contact name <input name="contactName"></label>
           <label>Phone <input name="phone" autocomplete="tel"></label>
@@ -118,9 +230,10 @@
     </section>
 
     <section id="admin" class="section admin-section">
-      <div class="section-heading compact">
+      <div class="section-heading wide-heading">
         <p class="eyebrow">Admin workspace</p>
-        <h2>Operations dashboard</h2>
+        <h2>Keep client work visible from enquiry to filing.</h2>
+        <p>Track leads, call follow-ups, automation projects, filing tasks, and due dates from one operating view.</p>
       </div>
 
       <div class="metric-grid" id="metrics"></div>
@@ -151,6 +264,7 @@
         </section>
 
         <form id="filing-form" class="panel form-panel compact-form">
+          <span class="form-label">Internal tracker</span>
           <h3>Add Filing Task</h3>
           <label>Client name <input name="clientName" required></label>
           <label>Return type <input name="returnType" required placeholder="GSTR-3B, ITR, TDS"></label>
@@ -165,10 +279,9 @@
 
   <footer class="site-footer">
     <span>IT GST Automation MVP</span>
-    <span>Local-first client operations platform</span>
+    <span>Tax, GST, accounting and MIS operations platform</span>
   </footer>
 
   <script src="/app.js"></script>
 </body>
 </html>
-
