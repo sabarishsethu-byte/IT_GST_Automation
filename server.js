@@ -9,6 +9,7 @@ const ROOT = __dirname;
 const PUBLIC_DIR = path.join(ROOT, "public");
 const DATA_DIR = path.join(ROOT, "data");
 const DATA_FILE = path.join(DATA_DIR, "app.json");
+const UPLOADS_DIR = path.join(ROOT, "uploads");
 
 const DEFAULT_DATA = {
   leads: [],
@@ -16,6 +17,7 @@ const DEFAULT_DATA = {
   tasks: [],
   filingTasks: [],
   automationProjects: [],
+  documents: [],
   notifications: [],
   activityLogs: []
 };
@@ -37,6 +39,7 @@ const ADMIN_STATUSES = new Set(["new", "call_required", "contacted", "quote_sent
 
 function ensureDataFile() {
   fs.mkdirSync(DATA_DIR, { recursive: true });
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
   if (!fs.existsSync(DATA_FILE)) {
     fs.writeFileSync(DATA_FILE, JSON.stringify(DEFAULT_DATA, null, 2));
   }
@@ -132,6 +135,17 @@ function readBody(req) {
 
 function cleanText(value) {
   return String(value || "").trim();
+}
+
+function safeFilename(value) {
+  const parsed = path.parse(cleanText(value) || "document");
+  const base = parsed.name.replace(/[^a-z0-9-_ ]/gi, "_").slice(0, 80) || "document";
+  const ext = parsed.ext.replace(/[^a-z0-9.]/gi, "").slice(0, 12);
+  return `${base}${ext}`;
+}
+
+function findClient(data, clientId) {
+  return data.clients.find(item => item.id === clientId);
 }
 
 function requireFields(body, fields) {
@@ -283,6 +297,81 @@ async function handleApi(req, res, pathname) {
     return;
   }
 
+  if (req.method === "GET" && pathname.match(/^\/api\/clients\/[^/]+$/)) {
+    if (!requireAdmin(req, res)) return;
+    const clientId = pathname.split("/")[3];
+    const client = findClient(data, clientId);
+    if (!client) {
+      sendJson(res, 404, { error: "Client not found" });
+      return;
+    }
+    const documents = data.documents.filter(document => document.clientId === clientId);
+    const filingTasks = data.filingTasks.filter(task => task.clientId === clientId);
+    sendJson(res, 200, { client, documents, filingTasks });
+    return;
+  }
+
+  if (req.method === "PATCH" && pathname.match(/^\/api\/clients\/[^/]+$/)) {
+    if (!requireAdmin(req, res)) return;
+    const clientId = pathname.split("/")[3];
+    const client = findClient(data, clientId);
+    if (!client) {
+      sendJson(res, 404, { error: "Client not found" });
+      return;
+    }
+
+    const body = await readBody(req);
+    const editableFields = [
+      "clientType",
+      "displayName",
+      "legalName",
+      "tradeName",
+      "phone",
+      "email",
+      "city",
+      "state",
+      "pan",
+      "gstin",
+      "cin",
+      "status",
+      "assignedTo",
+      "serviceNotes"
+    ];
+
+    for (const field of editableFields) {
+      if (Object.prototype.hasOwnProperty.call(body, field)) {
+        client[field] = cleanText(body[field]);
+      }
+    }
+
+    const note = cleanText(body.note);
+    if (note) {
+      client.notes = Array.isArray(client.notes) ? client.notes : [];
+      client.notes.unshift({
+        id: id("clientnote"),
+        text: note,
+        createdAt: nowIso()
+      });
+    }
+
+    client.updatedAt = nowIso();
+    addActivity(data, "client_updated", "client", client.id, { noteAdded: Boolean(note) });
+    writeData(data);
+    sendJson(res, 200, { client });
+    return;
+  }
+
+  if (req.method === "GET" && pathname.match(/^\/api\/clients\/[^/]+\/documents$/)) {
+    if (!requireAdmin(req, res)) return;
+    const clientId = pathname.split("/")[3];
+    if (!findClient(data, clientId)) {
+      sendJson(res, 404, { error: "Client not found" });
+      return;
+    }
+    sendJson(res, 200, data.documents.filter(document => document.clientId === clientId));
+    return;
+  }
+
   if (req.method === "GET" && pathname === "/api/tasks") {
     if (!requireAdmin(req, res)) return;
     sendJson(res, 200, data.tasks);
@@ -424,6 +513,8 @@ async function handleApi(req, res, pathname) {
       status: "active",
       assignedTo: lead.assignedTo || "admin",
       createdFromLeadId: lead.id,
+      serviceNotes: lead.serviceInterest,
+      notes: [],
       createdAt: nowIso(),
       updatedAt: nowIso()
     };
@@ -441,6 +532,63 @@ async function handleApi(req, res, pathname) {
     addActivity(data, "lead_converted", "client", client.id, { leadId: lead.id });
     writeData(data);
     sendJson(res, 201, { client });
+    return;
+  }
+
+  if (req.method === "POST" && pathname.match(/^\/api\/clients\/[^/]+\/documents$/)) {
+    if (!requireAdmin(req, res)) return;
+    const clientId = pathname.split("/")[3];
+    const client = findClient(data, clientId);
+    if (!client) {
+      sendJson(res, 404, { error: "Client not found" });
+      return;
+    }
+
+    const body = await readBody(req);
+    const missing = requireFields(body, ["filename", "category", "contentBase64"]);
+    if (missing) {
+      sendJson(res, 400, { error: missing });
+      return;
+    }
+
+    const filename = safeFilename(body.filename);
+    const category = cleanText(body.category) || "other";
+    const fileBytes = Buffer.from(String(body.contentBase64).split(",").pop(), "base64");
+    if (!fileBytes.length) {
+      sendJson(res, 400, { error: "Uploaded file is empty" });
+      return;
+    }
+    if (fileBytes.length > 8_000_000) {
+      sendJson(res, 400, { error: "File too large for local MVP upload limit" });
+      return;
+    }
+
+    const documentId = id("doc");
+    const clientDir = path.join(UPLOADS_DIR, client.id, category.replace(/[^a-z0-9-_]/gi, "_"));
+    fs.mkdirSync(clientDir, { recursive: true });
+    const storedName = `${documentId}_${filename}`;
+    const storedPath = path.join(clientDir, storedName);
+    fs.writeFileSync(storedPath, fileBytes);
+
+    const document = {
+      id: documentId,
+      clientId: client.id,
+      uploadedBy: "admin",
+      documentCategory: category,
+      originalFilename: filename,
+      storedPath: path.relative(ROOT, storedPath),
+      mimeType: cleanText(body.mimeType) || "application/octet-stream",
+      fileSize: fileBytes.length,
+      servicePeriod: cleanText(body.servicePeriod),
+      tags: cleanText(body.tags),
+      notes: cleanText(body.notes),
+      createdAt: nowIso()
+    };
+
+    data.documents.unshift(document);
+    addActivity(data, "document_uploaded", "document", document.id, { clientId: client.id, category });
+    writeData(data);
+    sendJson(res, 201, { document });
     return;
   }
 
@@ -489,7 +637,12 @@ async function handleApi(req, res, pathname) {
   if (req.method === "POST" && pathname === "/api/filing-tasks") {
     if (!requireAdmin(req, res)) return;
     const body = await readBody(req);
-    const missing = requireFields(body, ["clientName", "returnType", "dueDate"]);
+    const selectedClient = body.clientId ? findClient(data, body.clientId) : null;
+    const bodyWithClientName = {
+      ...body,
+      clientName: selectedClient?.displayName || body.clientName
+    };
+    const missing = requireFields(bodyWithClientName, ["clientName", "returnType", "dueDate"]);
     if (missing) {
       sendJson(res, 400, { error: missing });
       return;
@@ -497,8 +650,8 @@ async function handleApi(req, res, pathname) {
 
     const filingTask = {
       id: id("filing"),
-      clientId: body.clientId || null,
-      clientName: cleanText(body.clientName),
+      clientId: selectedClient?.id || body.clientId || null,
+      clientName: cleanText(bodyWithClientName.clientName),
       returnType: cleanText(body.returnType),
       periodStart: body.periodStart || null,
       periodEnd: body.periodEnd || null,

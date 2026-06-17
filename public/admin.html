@@ -58,6 +58,42 @@
           <div id="clients-list" class="record-list"></div>
         </section>
 
+        <section class="panel client-detail-panel">
+          <div class="panel-header">
+            <h3>Client Profile</h3>
+            <span class="badge" id="selected-client-badge">Select client</span>
+          </div>
+          <form id="client-form" class="form-panel compact-form">
+            <input type="hidden" name="clientId">
+            <div class="two-column-form">
+              <label>Display name <input name="displayName"></label>
+              <label>Client type
+                <select name="clientType">
+                  <option value="individual">Individual</option>
+                  <option value="proprietor">Proprietor</option>
+                  <option value="partnership">Partnership</option>
+                  <option value="company">Company</option>
+                  <option value="llp">LLP</option>
+                  <option value="other">Other</option>
+                </select>
+              </label>
+              <label>Legal name <input name="legalName"></label>
+              <label>Trade name <input name="tradeName"></label>
+              <label>Phone <input name="phone"></label>
+              <label>Email <input name="email" type="email"></label>
+              <label>City <input name="city"></label>
+              <label>State <input name="state"></label>
+              <label>PAN <input name="pan"></label>
+              <label>GSTIN <input name="gstin"></label>
+              <label>CIN <input name="cin"></label>
+              <label>Service notes <input name="serviceNotes"></label>
+            </div>
+            <label>Internal note <textarea name="note" placeholder="Call summary, pending work, client preference"></textarea></label>
+            <button class="button primary" type="submit">Save Client Profile</button>
+            <p class="form-status" data-status-for="client-form"></p>
+          </form>
+        </section>
+
         <section class="panel">
           <div class="panel-header">
             <h3>Automation Projects</h3>
@@ -66,10 +102,45 @@
           <div id="projects-list" class="record-list"></div>
         </section>
 
+        <section class="panel document-panel">
+          <div class="panel-header">
+            <h3>Client Documents</h3>
+            <span class="badge" id="document-client-badge">Select client</span>
+          </div>
+          <form id="document-form" class="form-panel compact-form">
+            <input type="hidden" name="clientId">
+            <label>Category
+              <select name="category" required>
+                <option value="kyc">KYC</option>
+                <option value="income_tax">Income Tax</option>
+                <option value="gst">GST</option>
+                <option value="accounting">Accounting</option>
+                <option value="bank_statement">Bank Statement</option>
+                <option value="filed_return">Filed Return</option>
+                <option value="acknowledgement">Acknowledgement</option>
+                <option value="mis_report">MIS Report</option>
+                <option value="automation_project">Automation Project</option>
+                <option value="other">Other</option>
+              </select>
+            </label>
+            <label>File <input name="file" type="file" required></label>
+            <label>Service period <input name="servicePeriod" placeholder="Apr 2026, FY 2025-26"></label>
+            <label>Notes <textarea name="notes"></textarea></label>
+            <button class="button primary" type="submit">Upload Document</button>
+            <p class="form-status" data-status-for="document-form"></p>
+          </form>
+          <div id="documents-list" class="record-list document-list"></div>
+        </section>
+
         <form id="filing-form" class="panel form-panel compact-form">
           <span class="form-label">Internal tracker</span>
           <h3>Add Filing Task</h3>
-          <label>Client name <input name="clientName" required></label>
+          <label>Client
+            <select name="clientId" id="filing-client-select">
+              <option value="">Select client or type name below</option>
+            </select>
+          </label>
+          <label>Client name <input name="clientName" placeholder="Use only if client is not created yet"></label>
           <label>Return type <input name="returnType" required placeholder="GSTR-3B, ITR, TDS"></label>
           <label>Due date <input name="dueDate" type="date" required></label>
           <label>Notes <textarea name="notes"></textarea></label>

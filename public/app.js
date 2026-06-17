@@ -46,6 +46,21 @@ const api = {
   getClients() {
     return this.request("/api/clients");
   },
+  getClient(clientId) {
+    return this.request(`/api/clients/${encodeURIComponent(clientId)}`);
+  },
+  updateClient(clientId, payload) {
+    return this.request(`/api/clients/${encodeURIComponent(clientId)}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload)
+    });
+  },
+  uploadDocument(clientId, payload) {
+    return this.request(`/api/clients/${encodeURIComponent(clientId)}/documents`, {
+      method: "POST",
+      body: JSON.stringify(payload)
+    });
+  },
   updateLead(leadId, payload) {
     return this.request(`/api/leads/${encodeURIComponent(leadId)}`, {
       method: "PATCH",
@@ -57,6 +72,11 @@ const api = {
       method: "POST"
     });
   }
+};
+
+const state = {
+  selectedClientId: null,
+  clients: []
 };
 
 function formDataToObject(form) {
@@ -122,6 +142,88 @@ function leadRecord(lead) {
   `;
 }
 
+function clientRecord(client) {
+  return `
+    <article class="record client-record" data-client-id="${escapeHtml(client.id)}">
+      <div class="record-title">
+        <span>${escapeHtml(client.displayName)}</span>
+        <span class="badge">${escapeHtml(client.status || "active")}</span>
+      </div>
+      <div class="record-meta">${escapeHtml(client.phone || "No phone")} | ${escapeHtml(client.email || "No email")}</div>
+      <div class="record-meta">${escapeHtml(client.clientType || "Client")} | ${escapeHtml(client.serviceNotes || "No service notes")}</div>
+      <button class="button secondary small-button" type="button" data-select-client="${escapeHtml(client.id)}">Open Profile</button>
+    </article>
+  `;
+}
+
+function documentRecord(document) {
+  return record(
+    document.originalFilename,
+    document.documentCategory.replaceAll("_", " "),
+    `${Math.ceil((document.fileSize || 0) / 1024)} KB | ${formatDate(document.createdAt)}`,
+    document.notes || document.servicePeriod || document.storedPath
+  );
+}
+
+function fillClientSelects(clients) {
+  const filingSelect = document.querySelector("#filing-client-select");
+  if (!filingSelect) return;
+  const current = filingSelect.value;
+  filingSelect.innerHTML = `
+    <option value="">Select client or type name below</option>
+    ${clients.map(client => `<option value="${escapeHtml(client.id)}">${escapeHtml(client.displayName)}</option>`).join("")}
+  `;
+  filingSelect.value = clients.some(client => client.id === current) ? current : "";
+}
+
+function setSelectedClientBadges(client) {
+  const label = client ? client.displayName : "Select client";
+  document.querySelectorAll("#selected-client-badge, #document-client-badge").forEach(element => {
+    element.textContent = label;
+  });
+}
+
+function fillClientForm(client) {
+  const form = document.querySelector("#client-form");
+  const documentForm = document.querySelector("#document-form");
+  if (!form) return;
+
+  state.selectedClientId = client?.id || null;
+  setSelectedClientBadges(client);
+  form.elements.clientId.value = client?.id || "";
+
+  [
+    "displayName",
+    "clientType",
+    "legalName",
+    "tradeName",
+    "phone",
+    "email",
+    "city",
+    "state",
+    "pan",
+    "gstin",
+    "cin",
+    "serviceNotes"
+  ].forEach(field => {
+    if (form.elements[field]) form.elements[field].value = client?.[field] || "";
+  });
+  if (form.elements.note) form.elements.note.value = "";
+  if (documentForm?.elements.clientId) documentForm.elements.clientId.value = client?.id || "";
+}
+
+async function refreshSelectedClient() {
+  if (!state.selectedClientId) return;
+  const detail = await api.getClient(state.selectedClientId);
+  fillClientForm(detail.client);
+  renderList(
+    "#documents-list",
+    detail.documents,
+    documentRecord,
+    "No documents uploaded for this client yet."
+  );
+}
+
 function escapeHtml(value) {
   return String(value || "")
     .replaceAll("&", "&amp;")
@@ -165,6 +267,7 @@ function renderList(selector, items, mapper, emptyText) {
 async function refreshDashboard() {
   const dashboard = await api.getDashboard();
   const [leads, clients] = await Promise.all([api.getLeads(), api.getClients()]);
+  state.clients = clients;
   renderMetrics(dashboard.counts);
 
   renderList(
@@ -177,14 +280,16 @@ async function refreshDashboard() {
   renderList(
     "#clients-list",
     clients,
-    client => record(
-      client.displayName,
-      client.status,
-      `${client.phone || "No phone"} | ${client.email || "No email"}`,
-      `${client.clientType || "Client"} | ${client.city || "City not added"}`
-    ),
+    clientRecord,
     "No clients yet. Convert a lead to create the first client profile."
   );
+  fillClientSelects(clients);
+  if (!state.selectedClientId && clients[0]) {
+    fillClientForm(clients[0]);
+    await refreshSelectedClient();
+  } else if (state.selectedClientId) {
+    await refreshSelectedClient();
+  }
 
   renderList(
     "#tasks-list",
@@ -286,6 +391,63 @@ function bindForms() {
     });
   }
 
+  const clientForm = document.querySelector("#client-form");
+  if (clientForm) {
+    clientForm.addEventListener("submit", async event => {
+      event.preventDefault();
+      const clientId = clientForm.elements.clientId.value;
+      if (!clientId) {
+        setStatus("client-form", "Select a client first.", true);
+        return;
+      }
+      setStatus("client-form", "Saving client profile...");
+      try {
+        const payload = formDataToObject(clientForm);
+        delete payload.clientId;
+        await api.updateClient(clientId, payload);
+        setStatus("client-form", "Client profile saved.");
+        await refreshDashboard();
+      } catch (error) {
+        setStatus("client-form", error.message, true);
+      }
+    });
+  }
+
+  const documentForm = document.querySelector("#document-form");
+  if (documentForm) {
+    documentForm.addEventListener("submit", async event => {
+      event.preventDefault();
+      const clientId = documentForm.elements.clientId.value;
+      const file = documentForm.elements.file.files[0];
+      if (!clientId) {
+        setStatus("document-form", "Select a client first.", true);
+        return;
+      }
+      if (!file) {
+        setStatus("document-form", "Choose a file to upload.", true);
+        return;
+      }
+      setStatus("document-form", "Uploading document...");
+      try {
+        const contentBase64 = await readFileAsDataUrl(file);
+        await api.uploadDocument(clientId, {
+          category: documentForm.elements.category.value,
+          filename: file.name,
+          mimeType: file.type,
+          servicePeriod: documentForm.elements.servicePeriod.value,
+          notes: documentForm.elements.notes.value,
+          contentBase64
+        });
+        documentForm.reset();
+        documentForm.elements.clientId.value = clientId;
+        setStatus("document-form", "Document uploaded.");
+        await refreshSelectedClient();
+      } catch (error) {
+        setStatus("document-form", error.message, true);
+      }
+    });
+  }
+
   document.querySelectorAll("[data-refresh]").forEach(button => {
     button.addEventListener("click", refreshDashboard);
   });
@@ -306,7 +468,23 @@ function bindForms() {
     if (convertButton) {
       await api.convertLead(convertButton.dataset.convertLead);
       await refreshDashboard();
+      return;
     }
+
+    const selectClientButton = event.target.closest("[data-select-client]");
+    if (selectClientButton) {
+      state.selectedClientId = selectClientButton.dataset.selectClient;
+      await refreshSelectedClient();
+    }
+  });
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Could not read selected file"));
+    reader.readAsDataURL(file);
   });
 }
 

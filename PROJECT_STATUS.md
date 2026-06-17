@@ -47,6 +47,9 @@ Latest frontend pass:
 - Added simple admin login at `public/login.html`.
 - Protected admin page and internal APIs with an HTTP-only session cookie.
 - Added lead status updates, internal lead notes, and lead-to-client conversion.
+- Added editable client profile fields in the admin workspace.
+- Added client document upload categories and local manual file upload.
+- Added client-linked filing task support.
 
 Current local admin password:
 

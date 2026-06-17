@@ -698,6 +698,17 @@ textarea:focus {
   grid-row: span 2;
 }
 
+.client-detail-panel,
+.document-panel {
+  grid-column: span 2;
+}
+
+.two-column-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+}
+
 .panel-header {
   display: flex;
   justify-content: space-between;
@@ -741,6 +752,14 @@ textarea:focus {
 
 .lead-note-label textarea {
   min-height: 68px;
+}
+
+.client-record {
+  gap: 11px;
+}
+
+.document-list {
+  margin-top: 14px;
 }
 
 .record-title {
@@ -847,8 +866,14 @@ textarea:focus {
   .audience-grid,
   .form-grid,
   .workspace-grid,
-  .lead-actions {
+  .lead-actions,
+  .two-column-form {
     grid-template-columns: 1fr;
+  }
+
+  .client-detail-panel,
+  .document-panel {
+    grid-column: auto;
   }
 
   .hero {
