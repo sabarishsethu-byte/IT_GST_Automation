@@ -50,6 +50,9 @@ Latest frontend pass:
 - Added editable client profile fields in the admin workspace.
 - Added client document upload categories and local manual file upload.
 - Added client-linked filing task support.
+- Added task completion from admin open/overdue task lists.
+- Added separate overdue task list in admin.
+- Added document download links in the selected client document list.
 
 Current local admin password:
 

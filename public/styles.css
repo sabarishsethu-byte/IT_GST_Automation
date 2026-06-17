@@ -762,6 +762,15 @@ textarea:focus {
   margin-top: 14px;
 }
 
+.overdue-record {
+  border-color: rgba(169, 70, 98, 0.35);
+  background: #fff7f8;
+}
+
+.download-link {
+  width: fit-content;
+}
+
 .record-title {
   display: flex;
   justify-content: space-between;

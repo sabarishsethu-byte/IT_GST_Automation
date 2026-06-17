@@ -148,6 +148,14 @@ function findClient(data, clientId) {
   return data.clients.find(item => item.id === clientId);
 }
 
+function findTask(data, taskId) {
+  return data.tasks.find(item => item.id === taskId);
+}
+
+function findDocument(data, documentId) {
+  return data.documents.find(item => item.id === documentId);
+}
+
 function requireFields(body, fields) {
   const missing = fields.filter(field => !cleanText(body[field]));
   if (missing.length) {
@@ -224,6 +232,7 @@ function buildDashboard(data) {
     },
     recentLeads: data.leads.slice(0, 8),
     openTasks: data.tasks.filter(task => task.status === "open").slice(0, 10),
+    overdueTasks: data.tasks.filter(task => task.status === "open" && isOverdue(task.dueAt)).slice(0, 10),
     upcomingFilings: data.filingTasks.filter(task => task.status !== "completed").slice(0, 10),
     activeProjects: data.automationProjects.slice(0, 8)
   };
@@ -372,9 +381,57 @@ async function handleApi(req, res, pathname) {
     return;
   }
 
+  if (req.method === "GET" && pathname.match(/^\/api\/documents\/[^/]+\/download$/)) {
+    if (!requireAdmin(req, res)) return;
+    const documentId = pathname.split("/")[3];
+    const document = findDocument(data, documentId);
+    if (!document) {
+      sendJson(res, 404, { error: "Document not found" });
+      return;
+    }
+
+    const absolutePath = path.normalize(path.join(ROOT, document.storedPath));
+    if (!absolutePath.startsWith(UPLOADS_DIR) || !fs.existsSync(absolutePath)) {
+      sendJson(res, 404, { error: "Stored file not found" });
+      return;
+    }
+
+    res.writeHead(200, {
+      "Content-Type": document.mimeType || "application/octet-stream",
+      "Content-Disposition": `attachment; filename="${document.originalFilename.replace(/"/g, "")}"`
+    });
+    fs.createReadStream(absolutePath).pipe(res);
+    return;
+  }
+
   if (req.method === "GET" && pathname === "/api/tasks") {
     if (!requireAdmin(req, res)) return;
     sendJson(res, 200, data.tasks);
+    return;
+  }
+
+  if (req.method === "PATCH" && pathname.match(/^\/api\/tasks\/[^/]+$/)) {
+    if (!requireAdmin(req, res)) return;
+    const taskId = pathname.split("/")[3];
+    const task = findTask(data, taskId);
+    if (!task) {
+      sendJson(res, 404, { error: "Task not found" });
+      return;
+    }
+
+    const body = await readBody(req);
+    const status = cleanText(body.status);
+    if (!["open", "in_progress", "done", "cancelled"].includes(status)) {
+      sendJson(res, 400, { error: "Invalid task status" });
+      return;
+    }
+
+    task.status = status;
+    task.completedAt = status === "done" ? nowIso() : null;
+    task.updatedAt = nowIso();
+    addActivity(data, "task_updated", "task", task.id, { status });
+    writeData(data);
+    sendJson(res, 200, { task });
     return;
   }
 

@@ -31,6 +31,12 @@ const api = {
       body: JSON.stringify(payload)
     });
   },
+  updateTask(taskId, payload) {
+    return this.request(`/api/tasks/${encodeURIComponent(taskId)}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload)
+    });
+  },
   login(payload) {
     return this.request("/api/auth/login", {
       method: "POST",
@@ -118,6 +124,20 @@ function record(title, badge, meta, detail) {
   `;
 }
 
+function taskRecord(task, isOverdue = false) {
+  return `
+    <article class="record ${isOverdue ? "overdue-record" : ""}">
+      <div class="record-title">
+        <span>${escapeHtml(task.title)}</span>
+        <span class="badge">${escapeHtml(task.taskType.replaceAll("_", " "))}</span>
+      </div>
+      <div class="record-meta">Due: ${escapeHtml(formatDate(task.dueAt))}</div>
+      <div class="record-meta">${escapeHtml(task.description)}</div>
+      <button class="button secondary small-button" type="button" data-complete-task="${escapeHtml(task.id)}">Mark Done</button>
+    </article>
+  `;
+}
+
 function leadRecord(lead) {
   const notes = Array.isArray(lead.notes) ? lead.notes : [];
   const latestNote = notes[0]?.text || "No internal notes yet";
@@ -161,12 +181,17 @@ function clientRecord(client) {
 }
 
 function documentRecord(document) {
-  return record(
-    document.originalFilename,
-    document.documentCategory.replaceAll("_", " "),
-    `${Math.ceil((document.fileSize || 0) / 1024)} KB | ${formatDate(document.createdAt)}`,
-    document.notes || document.servicePeriod || document.storedPath
-  );
+  return `
+    <article class="record">
+      <div class="record-title">
+        <span>${escapeHtml(document.originalFilename)}</span>
+        <span class="badge">${escapeHtml(document.documentCategory.replaceAll("_", " "))}</span>
+      </div>
+      <div class="record-meta">${Math.ceil((document.fileSize || 0) / 1024)} KB | ${escapeHtml(formatDate(document.createdAt))}</div>
+      <div class="record-meta">${escapeHtml(document.notes || document.servicePeriod || document.storedPath)}</div>
+      <a class="button secondary small-button download-link" href="/api/documents/${encodeURIComponent(document.id)}/download">Download</a>
+    </article>
+  `;
 }
 
 function fillClientSelects(clients) {
@@ -298,13 +323,15 @@ async function refreshDashboard() {
   renderList(
     "#tasks-list",
     dashboard.openTasks,
-    task => record(
-      task.title,
-      task.taskType.replaceAll("_", " "),
-      `Due: ${formatDate(task.dueAt)}`,
-      task.description
-    ),
+    task => taskRecord(task),
     "No open tasks yet."
+  );
+
+  renderList(
+    "#overdue-tasks-list",
+    dashboard.overdueTasks || [],
+    task => taskRecord(task, true),
+    "No overdue tasks. Nice."
   );
 
   renderList(
@@ -479,6 +506,13 @@ function bindForms() {
     if (selectClientButton) {
       state.selectedClientId = selectClientButton.dataset.selectClient;
       await refreshSelectedClient();
+      return;
+    }
+
+    const completeTaskButton = event.target.closest("[data-complete-task]");
+    if (completeTaskButton) {
+      await api.updateTask(completeTaskButton.dataset.completeTask, { status: "done" });
+      await refreshDashboard();
     }
   });
 }
