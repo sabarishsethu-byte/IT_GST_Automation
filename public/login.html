@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login | IT GST Automation</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="login-page">
+  <main class="login-shell">
+    <section class="login-card panel">
+      <a class="brand" href="/" aria-label="IT GST Automation home">
+        <span class="brand-mark">IT</span>
+        <span>
+          <strong>GST Automation</strong>
+          <small>Admin access</small>
+        </span>
+      </a>
+      <div>
+        <p class="eyebrow">Internal workspace</p>
+        <h1>Sign in to manage leads and client work.</h1>
+      </div>
+      <form id="login-form" class="form-panel">
+        <label>Admin password <input name="password" type="password" required autocomplete="current-password"></label>
+        <button class="button primary" type="submit">Sign In</button>
+        <p class="form-status" data-status-for="login-form"></p>
+      </form>
+      <p class="login-hint">Local MVP password: admin123</p>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

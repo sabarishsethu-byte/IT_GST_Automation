@@ -44,6 +44,17 @@ Latest frontend pass:
 - Added proof strip, audience pathways, finance automation showcase, and improved conversion sections.
 - Kept existing lead, automation enquiry, admin dashboard, and filing task forms wired to the backend.
 - Moved the admin workspace off the public homepage into `public/admin.html`.
+- Added simple admin login at `public/login.html`.
+- Protected admin page and internal APIs with an HTTP-only session cookie.
+- Added lead status updates, internal lead notes, and lead-to-client conversion.
+
+Current local admin password:
+
+```text
+admin123
+```
+
+This is only for the local MVP. Use `ADMIN_PASSWORD` in the environment before deploying.
 
 ## Key Product Direction
 

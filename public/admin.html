@@ -19,6 +19,7 @@
       <a href="/">Website</a>
       <a href="#dashboard">Dashboard</a>
       <a href="#filing-form">Add Filing</a>
+      <button class="nav-button" id="logout-button" type="button">Logout</button>
     </nav>
   </header>
 
@@ -33,9 +34,9 @@
       <div class="metric-grid" id="metrics"></div>
 
       <div class="workspace-grid">
-        <section class="panel">
+        <section class="panel lead-management-panel">
           <div class="panel-header">
-            <h3>Recent Leads</h3>
+            <h3>Lead Management</h3>
             <button class="text-button" data-refresh>Refresh</button>
           </div>
           <div id="leads-list" class="record-list"></div>
@@ -47,6 +48,14 @@
             <button class="text-button" data-refresh>Refresh</button>
           </div>
           <div id="tasks-list" class="record-list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h3>Clients</h3>
+            <button class="text-button" data-refresh>Refresh</button>
+          </div>
+          <div id="clients-list" class="record-list"></div>
         </section>
 
         <section class="panel">

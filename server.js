@@ -4,6 +4,7 @@ const path = require("path");
 const crypto = require("crypto");
 
 const PORT = Number(process.env.PORT || 4173);
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
 const ROOT = __dirname;
 const PUBLIC_DIR = path.join(ROOT, "public");
 const DATA_DIR = path.join(ROOT, "data");
@@ -30,6 +31,9 @@ const MIME_TYPES = {
   ".webp": "image/webp",
   ".svg": "image/svg+xml"
 };
+
+const sessions = new Map();
+const ADMIN_STATUSES = new Set(["new", "call_required", "contacted", "quote_sent", "converted", "lost"]);
 
 function ensureDataFile() {
   fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -63,6 +67,42 @@ function sendJson(res, statusCode, payload) {
     "Cache-Control": "no-store"
   });
   res.end(body);
+}
+
+function sendRedirect(res, location) {
+  res.writeHead(302, { Location: location });
+  res.end();
+}
+
+function parseCookies(req) {
+  const header = req.headers.cookie || "";
+  return Object.fromEntries(
+    header
+      .split(";")
+      .map(item => item.trim())
+      .filter(Boolean)
+      .map(item => {
+        const index = item.indexOf("=");
+        return index === -1 ? [item, ""] : [item.slice(0, index), decodeURIComponent(item.slice(index + 1))];
+      })
+  );
+}
+
+function isAuthenticated(req) {
+  const cookies = parseCookies(req);
+  const session = cookies.admin_session && sessions.get(cookies.admin_session);
+  if (!session) return false;
+  if (new Date(session.expiresAt) < new Date()) {
+    sessions.delete(cookies.admin_session);
+    return false;
+  }
+  return true;
+}
+
+function requireAdmin(req, res) {
+  if (isAuthenticated(req)) return true;
+  sendJson(res, 401, { error: "Admin login required" });
+  return false;
 }
 
 function readBody(req) {
@@ -187,32 +227,76 @@ async function handleApi(req, res, pathname) {
     return;
   }
 
+  if (req.method === "POST" && pathname === "/api/auth/login") {
+    const body = await readBody(req);
+    if (cleanText(body.password) !== ADMIN_PASSWORD) {
+      sendJson(res, 401, { error: "Invalid admin password" });
+      return;
+    }
+
+    const sessionId = crypto.randomUUID();
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 12);
+    sessions.set(sessionId, { role: "admin", expiresAt: expiresAt.toISOString() });
+    res.writeHead(200, {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "no-store",
+      "Set-Cookie": `admin_session=${encodeURIComponent(sessionId)}; HttpOnly; SameSite=Lax; Path=/; Max-Age=43200`
+    });
+    res.end(JSON.stringify({ ok: true, role: "admin" }, null, 2));
+    return;
+  }
+
+  if (req.method === "POST" && pathname === "/api/auth/logout") {
+    const cookies = parseCookies(req);
+    if (cookies.admin_session) sessions.delete(cookies.admin_session);
+    res.writeHead(200, {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "no-store",
+      "Set-Cookie": "admin_session=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0"
+    });
+    res.end(JSON.stringify({ ok: true }, null, 2));
+    return;
+  }
+
+  if (req.method === "GET" && pathname === "/api/auth/me") {
+    if (!requireAdmin(req, res)) return;
+    sendJson(res, 200, { ok: true, role: "admin" });
+    return;
+  }
+
   if (req.method === "GET" && pathname === "/api/dashboard") {
+    if (!requireAdmin(req, res)) return;
     sendJson(res, 200, buildDashboard(data));
     return;
   }
 
   if (req.method === "GET" && pathname === "/api/leads") {
+    if (!requireAdmin(req, res)) return;
     sendJson(res, 200, data.leads);
     return;
   }
 
   if (req.method === "GET" && pathname === "/api/clients") {
+    if (!requireAdmin(req, res)) return;
     sendJson(res, 200, data.clients);
     return;
   }
 
   if (req.method === "GET" && pathname === "/api/tasks") {
+    if (!requireAdmin(req, res)) return;
     sendJson(res, 200, data.tasks);
     return;
   }
 
   if (req.method === "GET" && pathname === "/api/automation-projects") {
+    if (!requireAdmin(req, res)) return;
     sendJson(res, 200, data.automationProjects);
     return;
   }
 
   if (req.method === "GET" && pathname === "/api/filing-tasks") {
+    if (!requireAdmin(req, res)) return;
     sendJson(res, 200, data.filingTasks);
     return;
   }
@@ -271,11 +355,55 @@ async function handleApi(req, res, pathname) {
     return;
   }
 
-  if (req.method === "POST" && pathname.match(/^\/api\/leads\/[^/]+\/convert$/)) {
+  if (req.method === "PATCH" && pathname.match(/^\/api\/leads\/[^/]+$/)) {
+    if (!requireAdmin(req, res)) return;
     const leadId = pathname.split("/")[3];
     const lead = data.leads.find(item => item.id === leadId);
     if (!lead) {
       sendJson(res, 404, { error: "Lead not found" });
+      return;
+    }
+
+    const body = await readBody(req);
+    const nextStatus = cleanText(body.status);
+    if (nextStatus) {
+      if (!ADMIN_STATUSES.has(nextStatus)) {
+        sendJson(res, 400, { error: "Invalid lead status" });
+        return;
+      }
+      lead.status = nextStatus;
+    }
+
+    const note = cleanText(body.note);
+    if (note) {
+      lead.notes = Array.isArray(lead.notes) ? lead.notes : [];
+      lead.notes.unshift({
+        id: id("leadnote"),
+        text: note,
+        createdAt: nowIso()
+      });
+    }
+
+    lead.assignedTo = cleanText(body.assignedTo) || lead.assignedTo || "admin";
+    lead.updatedAt = nowIso();
+    addActivity(data, "lead_updated", "lead", lead.id, { status: lead.status, noteAdded: Boolean(note) });
+    writeData(data);
+    sendJson(res, 200, { lead });
+    return;
+  }
+
+  if (req.method === "POST" && pathname.match(/^\/api\/leads\/[^/]+\/convert$/)) {
+    if (!requireAdmin(req, res)) return;
+    const leadId = pathname.split("/")[3];
+    const lead = data.leads.find(item => item.id === leadId);
+    if (!lead) {
+      sendJson(res, 404, { error: "Lead not found" });
+      return;
+    }
+
+    const existingClient = data.clients.find(client => client.createdFromLeadId === lead.id);
+    if (existingClient) {
+      sendJson(res, 200, { client: existingClient, alreadyConverted: true });
       return;
     }
 
@@ -359,6 +487,7 @@ async function handleApi(req, res, pathname) {
   }
 
   if (req.method === "POST" && pathname === "/api/filing-tasks") {
+    if (!requireAdmin(req, res)) return;
     const body = await readBody(req);
     const missing = requireFields(body, ["clientName", "returnType", "dueDate"]);
     if (missing) {
@@ -393,6 +522,11 @@ async function handleApi(req, res, pathname) {
 
 function serveStatic(req, res, pathname) {
   const safePath = pathname === "/" ? "/index.html" : pathname;
+  if (safePath === "/admin.html" && !isAuthenticated(req)) {
+    sendRedirect(res, "/login.html");
+    return;
+  }
+
   const filePath = path.normalize(path.join(PUBLIC_DIR, safePath));
 
   if (!filePath.startsWith(PUBLIC_DIR)) {
@@ -439,4 +573,3 @@ ensureDataFile();
 server.listen(PORT, () => {
   console.log(`IT GST Automation MVP running at http://127.0.0.1:${PORT}`);
 });
-
