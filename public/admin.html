@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Workspace | IT GST Automation</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="IT GST Automation home">
+      <span class="brand-mark">IT</span>
+      <span>
+        <strong>GST Automation</strong>
+        <small>Internal admin workspace</small>
+      </span>
+    </a>
+    <nav class="nav-links" aria-label="Admin navigation">
+      <a href="/">Website</a>
+      <a href="#dashboard">Dashboard</a>
+      <a href="#filing-form">Add Filing</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="dashboard" class="section admin-section standalone-admin">
+      <div class="section-heading wide-heading">
+        <p class="eyebrow">Admin workspace</p>
+        <h1>Keep client work visible from enquiry to filing.</h1>
+        <p>Track leads, call follow-ups, automation projects, filing tasks, and due dates from one operating view.</p>
+      </div>
+
+      <div class="metric-grid" id="metrics"></div>
+
+      <div class="workspace-grid">
+        <section class="panel">
+          <div class="panel-header">
+            <h3>Recent Leads</h3>
+            <button class="text-button" data-refresh>Refresh</button>
+          </div>
+          <div id="leads-list" class="record-list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h3>Open Tasks</h3>
+            <button class="text-button" data-refresh>Refresh</button>
+          </div>
+          <div id="tasks-list" class="record-list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h3>Automation Projects</h3>
+            <button class="text-button" data-refresh>Refresh</button>
+          </div>
+          <div id="projects-list" class="record-list"></div>
+        </section>
+
+        <form id="filing-form" class="panel form-panel compact-form">
+          <span class="form-label">Internal tracker</span>
+          <h3>Add Filing Task</h3>
+          <label>Client name <input name="clientName" required></label>
+          <label>Return type <input name="returnType" required placeholder="GSTR-3B, ITR, TDS"></label>
+          <label>Due date <input name="dueDate" type="date" required></label>
+          <label>Notes <textarea name="notes"></textarea></label>
+          <button class="button primary" type="submit">Add Task</button>
+          <p class="form-status" data-status-for="filing-form"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>IT GST Automation Admin</span>
+    <span>Internal operations workspace</span>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>

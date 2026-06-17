@@ -598,6 +598,40 @@ textarea:focus {
   background: #f8faf7;
 }
 
+.standalone-admin {
+  min-height: calc(100vh - 65px);
+}
+
+.standalone-admin h1 {
+  font-size: clamp(2.1rem, 5vw, 4.35rem);
+  line-height: 1;
+}
+
+.closing-section {
+  background: #ffffff;
+}
+
+.closing-panel {
+  display: grid;
+  gap: 20px;
+  max-width: 1180px;
+  min-height: 340px;
+  align-content: center;
+  padding: clamp(28px, 5vw, 56px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f5f8f6;
+  box-shadow: var(--shadow);
+}
+
+.closing-panel h2 {
+  max-width: 860px;
+}
+
+.closing-panel .button {
+  width: fit-content;
+}
+
 .metric-grid {
   grid-template-columns: repeat(6, minmax(0, 1fr));
   max-width: 1180px;

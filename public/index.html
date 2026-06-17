@@ -19,7 +19,6 @@
       <a href="#services">Services</a>
       <a href="#automation">Automation</a>
       <a href="#forms">Start</a>
-      <a href="#admin">Admin</a>
     </nav>
   </header>
 
@@ -229,50 +228,11 @@
       </div>
     </section>
 
-    <section id="admin" class="section admin-section">
-      <div class="section-heading wide-heading">
-        <p class="eyebrow">Admin workspace</p>
-        <h2>Keep client work visible from enquiry to filing.</h2>
-        <p>Track leads, call follow-ups, automation projects, filing tasks, and due dates from one operating view.</p>
-      </div>
-
-      <div class="metric-grid" id="metrics"></div>
-
-      <div class="workspace-grid">
-        <section class="panel">
-          <div class="panel-header">
-            <h3>Recent Leads</h3>
-            <button class="text-button" data-refresh>Refresh</button>
-          </div>
-          <div id="leads-list" class="record-list"></div>
-        </section>
-
-        <section class="panel">
-          <div class="panel-header">
-            <h3>Open Tasks</h3>
-            <button class="text-button" data-refresh>Refresh</button>
-          </div>
-          <div id="tasks-list" class="record-list"></div>
-        </section>
-
-        <section class="panel">
-          <div class="panel-header">
-            <h3>Automation Projects</h3>
-            <button class="text-button" data-refresh>Refresh</button>
-          </div>
-          <div id="projects-list" class="record-list"></div>
-        </section>
-
-        <form id="filing-form" class="panel form-panel compact-form">
-          <span class="form-label">Internal tracker</span>
-          <h3>Add Filing Task</h3>
-          <label>Client name <input name="clientName" required></label>
-          <label>Return type <input name="returnType" required placeholder="GSTR-3B, ITR, TDS"></label>
-          <label>Due date <input name="dueDate" type="date" required></label>
-          <label>Notes <textarea name="notes"></textarea></label>
-          <button class="button primary" type="submit">Add Task</button>
-          <p class="form-status" data-status-for="filing-form"></p>
-        </form>
+    <section class="section closing-section">
+      <div class="closing-panel">
+        <p class="eyebrow">Next step</p>
+        <h2>Start with a call, then let the team organize the filing or automation work.</h2>
+        <a class="button primary" href="#callback-form">Request a Call Back</a>
       </div>
     </section>
   </main>

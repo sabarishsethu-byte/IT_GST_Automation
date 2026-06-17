@@ -43,6 +43,7 @@ Latest frontend pass:
 - Added a more engaging hero section with operational highlights.
 - Added proof strip, audience pathways, finance automation showcase, and improved conversion sections.
 - Kept existing lead, automation enquiry, admin dashboard, and filing task forms wired to the backend.
+- Moved the admin workspace off the public homepage into `public/admin.html`.
 
 ## Key Product Direction
 

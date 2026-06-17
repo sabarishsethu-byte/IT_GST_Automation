@@ -78,6 +78,9 @@ function escapeHtml(value) {
 }
 
 function renderMetrics(counts) {
+  const metrics = document.querySelector("#metrics");
+  if (!metrics) return;
+
   const labels = [
     ["leads", "Total Leads"],
     ["callRequired", "Calls Required"],
@@ -87,7 +90,7 @@ function renderMetrics(counts) {
     ["activeProjects", "Active Projects"]
   ];
 
-  document.querySelector("#metrics").innerHTML = labels
+  metrics.innerHTML = labels
     .map(([key, label]) => `
       <div class="metric">
         <strong>${counts[key] || 0}</strong>
@@ -99,6 +102,7 @@ function renderMetrics(counts) {
 
 function renderList(selector, items, mapper, emptyText) {
   const element = document.querySelector(selector);
+  if (!element) return;
   element.innerHTML = items.length
     ? items.map(mapper).join("")
     : `<div class="empty-state">${emptyText}</div>`;
@@ -147,50 +151,56 @@ async function refreshDashboard() {
 
 function bindForms() {
   const callbackForm = document.querySelector("#callback-form");
-  callbackForm.addEventListener("submit", async event => {
-    event.preventDefault();
-    setStatus("callback-form", "Creating call request...");
-    try {
-      const payload = {
-        ...formDataToObject(callbackForm),
-        onboardingType: "assisted"
-      };
-      await api.createLead(payload);
-      callbackForm.reset();
-      setStatus("callback-form", "Call request created. It is visible in the admin dashboard.");
-      await refreshDashboard();
-    } catch (error) {
-      setStatus("callback-form", error.message, true);
-    }
-  });
+  if (callbackForm) {
+    callbackForm.addEventListener("submit", async event => {
+      event.preventDefault();
+      setStatus("callback-form", "Creating call request...");
+      try {
+        const payload = {
+          ...formDataToObject(callbackForm),
+          onboardingType: "assisted"
+        };
+        await api.createLead(payload);
+        callbackForm.reset();
+        setStatus("callback-form", "Call request created. Our team can now follow up.");
+        await refreshDashboard();
+      } catch (error) {
+        setStatus("callback-form", error.message, true);
+      }
+    });
+  }
 
   const automationForm = document.querySelector("#automation-form");
-  automationForm.addEventListener("submit", async event => {
-    event.preventDefault();
-    setStatus("automation-form", "Creating automation enquiry...");
-    try {
-      await api.createAutomationProject(formDataToObject(automationForm));
-      automationForm.reset();
-      setStatus("automation-form", "Automation enquiry created. Discovery task is ready.");
-      await refreshDashboard();
-    } catch (error) {
-      setStatus("automation-form", error.message, true);
-    }
-  });
+  if (automationForm) {
+    automationForm.addEventListener("submit", async event => {
+      event.preventDefault();
+      setStatus("automation-form", "Creating automation enquiry...");
+      try {
+        await api.createAutomationProject(formDataToObject(automationForm));
+        automationForm.reset();
+        setStatus("automation-form", "Automation enquiry created. Discovery task is ready.");
+        await refreshDashboard();
+      } catch (error) {
+        setStatus("automation-form", error.message, true);
+      }
+    });
+  }
 
   const filingForm = document.querySelector("#filing-form");
-  filingForm.addEventListener("submit", async event => {
-    event.preventDefault();
-    setStatus("filing-form", "Adding filing task...");
-    try {
-      await api.createFilingTask(formDataToObject(filingForm));
-      filingForm.reset();
-      setStatus("filing-form", "Filing task added.");
-      await refreshDashboard();
-    } catch (error) {
-      setStatus("filing-form", error.message, true);
-    }
-  });
+  if (filingForm) {
+    filingForm.addEventListener("submit", async event => {
+      event.preventDefault();
+      setStatus("filing-form", "Adding filing task...");
+      try {
+        await api.createFilingTask(formDataToObject(filingForm));
+        filingForm.reset();
+        setStatus("filing-form", "Filing task added.");
+        await refreshDashboard();
+      } catch (error) {
+        setStatus("filing-form", error.message, true);
+      }
+    });
+  }
 
   document.querySelectorAll("[data-refresh]").forEach(button => {
     button.addEventListener("click", refreshDashboard);
@@ -201,4 +211,3 @@ bindForms();
 refreshDashboard().catch(error => {
   console.error(error);
 });
-
