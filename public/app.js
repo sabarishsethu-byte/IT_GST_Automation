@@ -90,6 +90,10 @@ function setStatus(formId, message, isError = false) {
   status.classList.toggle("error", isError);
 }
 
+function hasDashboard() {
+  return Boolean(document.querySelector("#metrics"));
+}
+
 function formatDate(value) {
   if (!value) return "No due date";
   const date = new Date(value);
@@ -352,7 +356,7 @@ function bindForms() {
         await api.createLead(payload);
         callbackForm.reset();
         setStatus("callback-form", "Call request created. Our team can now follow up.");
-        await refreshDashboard();
+        if (hasDashboard()) await refreshDashboard();
       } catch (error) {
         setStatus("callback-form", error.message, true);
       }
@@ -368,7 +372,7 @@ function bindForms() {
         await api.createAutomationProject(formDataToObject(automationForm));
         automationForm.reset();
         setStatus("automation-form", "Automation enquiry created. Discovery task is ready.");
-        await refreshDashboard();
+        if (hasDashboard()) await refreshDashboard();
       } catch (error) {
         setStatus("automation-form", error.message, true);
       }
